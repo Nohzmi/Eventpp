@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{3e74df32-38b1-4521-b277-6c5eb7ed3aa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Details">
+      <UniqueIdentifier>{e1b6b8c7-01ad-4b02-8d64-2d23f792cdf2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Details\Factory.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Details\FreeBindCallback.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Details\FreeCallback.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Details\FunctionTraits.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Details\LambdaBindCallback.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Details\LambdaCallback.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Details\MemberBindCallback.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Details\MemberCallback.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Details\Callback.h">
+      <Filter>include\Details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Delegate.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Event.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\Details\Factory.inl">
+      <Filter>include\Details</Filter>
+    </None>
+    <None Include="include\Details\FreeBindCallback.inl">
+      <Filter>include\Details</Filter>
+    </None>
+    <None Include="include\Details\FreeCallback.inl">
+      <Filter>include\Details</Filter>
+    </None>
+    <None Include="include\Details\LambdaBindCallback.inl">
+      <Filter>include\Details</Filter>
+    </None>
+    <None Include="include\Details\LambdaCallback.inl">
+      <Filter>include\Details</Filter>
+    </None>
+    <None Include="include\Details\MemberBindCallback.inl">
+      <Filter>include\Details</Filter>
+    </None>
+    <None Include="include\Details\MemberCallback.inl">
+      <Filter>include\Details</Filter>
+    </None>
+    <None Include="include\Details\Delegate.inl">
+      <Filter>include\Details</Filter>
+    </None>
+    <None Include="include\Details\Event.inl">
+      <Filter>include\Details</Filter>
+    </None>
+  </ItemGroup>
+</Project>
