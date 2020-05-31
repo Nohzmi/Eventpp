@@ -1,5 +1,4 @@
-#include "Delegate.h"
-#include "Event.h"
+#include "Eventpp.hpp"
 
 void FreeFunction()
 {
