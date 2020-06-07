@@ -24,7 +24,7 @@ template<typename Return, typename ...Args>
 class Delegate<Return(*)(Args...)> final
 {
 	using FuncT = Return(*)(Args...);
-	using CallbackT = std::unique_ptr<Details::Callback<FuncT>>;
+	using CallbackT = std::unique_ptr<Eventpp::Callback<FuncT>>;
 
 public:
 

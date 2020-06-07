@@ -19,69 +19,29 @@
 * Contains all internal classes of Eventpp \n
 * Mainly callback inheritance hidden from user
 */
-namespace Details
+namespace Eventpp
 {
 	template<typename FuncT>
-	class FunctionTraits
+	struct FunctionTraits
 	{
-		using CallType = FunctionTraits<decltype(&FuncT::operator())>;
-
-	public:
-
-		using Type = typename CallType::Type;
-
-		struct Return
-		{
-			using Type = typename CallType::Return::Type;
-		};
-
-		template <size_t idx>
-		struct Argument
-		{
-			using type = typename CallType::template Argument<idx + 1>::Type;
-		};
+		using Type = typename FunctionTraits<decltype(&FuncT::operator())>::Type;
 	};
 
+	/**
+	* Type traits equivalent for functions \n
+	* Allow to deduce lambda function type
+	*/
 	template<typename Return, typename ...Args>
 	struct FunctionTraits<Return(Args...)>
 	{
 		using Type = Return(*)(Args...);
-
-		struct Return
-		{
-			using Type = Return;
-		};
-
-		template <size_t idx>
-		struct Argument
-		{
-			using Type = typename std::tuple_element<idx, std::tuple<Args...>>::type;
-		};
 	};
-
-	template<typename FuncT>
-	struct FunctionTraits<FuncT*> final : public FunctionTraits<FuncT> {};
-
-	template<typename FuncT>
-	struct FunctionTraits<FuncT**> final : public FunctionTraits<FuncT> {};
-
-	template<typename FuncT>
-	struct FunctionTraits<FuncT&> final : public FunctionTraits<FuncT> {};
-
-	template<typename FuncT>
-	struct FunctionTraits<FuncT&&> final : public FunctionTraits<FuncT> {};
-
-	template<typename Return, typename ...Args>
-	struct FunctionTraits<Return(*)(Args...)> final : public FunctionTraits<Return(Args...)> {};
 
 	template<typename ClassT, typename Return, typename ...Args>
 	struct FunctionTraits<Return(ClassT::*)(Args...)> final : public FunctionTraits<Return(Args...)> {};
 
 	template<typename ClassT, typename Return, typename ...Args>
 	struct FunctionTraits<Return(ClassT::*)(Args...) const> final : public FunctionTraits<Return(Args...)> {};
-
-	template<typename ClassT, typename Return>
-	struct FunctionTraits<Return(ClassT::*)> final : public FunctionTraits<Return()> {};
 
 	template<typename FuncT>
 	class Callback;
@@ -502,6 +462,10 @@ namespace Details
 
 	private:
 
+		/**
+		* Utility to extend binded parameters \n
+		* to apply them on function call
+		*/
 		template<typename FuncT, typename ArgsT>
 		Return Apply(FuncT func, ArgsT args) const noexcept
 		{
@@ -509,6 +473,10 @@ namespace Details
 			return ApplyImpl(func, args, std::make_index_sequence<size>{});
 		}
 
+		/**
+		* Utility to extend binded parameters \n
+		* to apply them on function call
+		*/
 		template<typename FuncT, typename ArgsT, int... idx>
 		Return ApplyImpl(FuncT func, ArgsT args, std::index_sequence<idx...>) const noexcept
 		{
@@ -611,6 +579,10 @@ namespace Details
 
 	private:
 
+		/**
+		* Utility to extend binded parameters \n
+		* to apply them on function call
+		*/
 		template<typename FuncClassT, typename ClassT, typename ArgsT>
 		Return Apply(FuncClassT func, ClassT* callee, ArgsT args) const noexcept
 		{
@@ -618,6 +590,10 @@ namespace Details
 			return ApplyImpl(func, callee, args, std::make_index_sequence<size>{});
 		}
 
+		/**
+		* Utility to extend binded parameters \n
+		* to apply them on function call
+		*/
 		template<typename FuncClassT, typename ClassT, typename ArgsT, size_t... idx>
 		Return ApplyImpl(FuncClassT func, ClassT* callee, ArgsT args, std::index_sequence<idx...>) const noexcept
 		{
@@ -719,6 +695,10 @@ namespace Details
 
 	private:
 
+		/**
+		* Utility to extend binded parameters \n
+		* to apply them on function call
+		*/
 		template<typename FuncT, typename ArgsT>
 		Return Apply(FuncT func, ArgsT args) const noexcept
 		{
@@ -726,6 +706,10 @@ namespace Details
 			return ApplyImpl(func, args, std::make_index_sequence<size>{});
 		}
 
+		/**
+		* Utility to extend binded parameters \n
+		* to apply them on function call
+		*/
 		template<typename FuncT, typename ArgsT, size_t... idx>
 		Return ApplyImpl(FuncT func, ArgsT args, std::index_sequence<idx...>) const noexcept
 		{
@@ -743,9 +727,9 @@ namespace Details
 * @param func
 */
 template<typename FuncT>
-std::unique_ptr<Details::FreeCallback<FuncT>> make_callback(FuncT&& func) noexcept
+std::unique_ptr<Eventpp::FreeCallback<FuncT>> make_callback(FuncT&& func) noexcept
 {
-	return std::make_unique<Details::FreeCallback<FuncT>>(func);
+	return std::make_unique<Eventpp::FreeCallback<FuncT>>(func);
 }
 
 /**
@@ -755,9 +739,9 @@ std::unique_ptr<Details::FreeCallback<FuncT>> make_callback(FuncT&& func) noexce
 * @param args
 */
 template<typename FuncT, typename ...Args>
-std::unique_ptr<Details::FreeBindCallback<FuncT>> make_callback(FuncT&& func, Args&&... args) noexcept
+std::unique_ptr<Eventpp::FreeBindCallback<FuncT>> make_callback(FuncT&& func, Args&&... args) noexcept
 {
-	return std::make_unique<Details::FreeBindCallback<FuncT>>(func, std::make_tuple(args...));
+	return std::make_unique<Eventpp::FreeBindCallback<FuncT>>(func, std::make_tuple(args...));
 }
 
 /**
@@ -766,9 +750,9 @@ std::unique_ptr<Details::FreeBindCallback<FuncT>> make_callback(FuncT&& func, Ar
 * @param obj
 */
 template<typename ClassT, typename FuncT>
-std::unique_ptr<Details::MemberCallback<ClassT, FuncT>> make_callback(FuncT&& func, ClassT*&& obj) noexcept
+std::unique_ptr<Eventpp::MemberCallback<ClassT, FuncT>> make_callback(FuncT&& func, ClassT*&& obj) noexcept
 {
-	return std::make_unique<Details::MemberCallback<ClassT, FuncT>>(func, obj);
+	return std::make_unique<Eventpp::MemberCallback<ClassT, FuncT>>(func, obj);
 }
 
 /**
@@ -779,19 +763,19 @@ std::unique_ptr<Details::MemberCallback<ClassT, FuncT>> make_callback(FuncT&& fu
 * @param args
 */
 template<typename ClassT, typename FuncT, typename ...Args>
-std::unique_ptr<Details::MemberBindCallback<ClassT, FuncT>> make_callback(FuncT&& func, ClassT*&& obj, Args&&... args) noexcept
+std::unique_ptr<Eventpp::MemberBindCallback<ClassT, FuncT>> make_callback(FuncT&& func, ClassT*&& obj, Args&&... args) noexcept
 {
-	return std::make_unique<Details::MemberBindCallback<ClassT, FuncT>>(func, obj, std::make_tuple(args...));
+	return std::make_unique<Eventpp::MemberBindCallback<ClassT, FuncT>>(func, obj, std::make_tuple(args...));
 }
 
 /**
 * Returns a callback on a lambda function
 * @param func
 */
-template<typename LambdaT, typename FuncT = typename Details::FunctionTraits<LambdaT>::Type>
-std::unique_ptr<Details::LambdaCallback<LambdaT, FuncT>> make_lambda(LambdaT func) noexcept
+template<typename LambdaT, typename FuncT = typename Eventpp::FunctionTraits<LambdaT>::Type>
+std::unique_ptr<Eventpp::LambdaCallback<LambdaT, FuncT>> make_lambda(LambdaT func) noexcept
 {
-	return std::make_unique<Details::LambdaCallback<LambdaT, FuncT>>(func, typeid(func).hash_code());
+	return std::make_unique<Eventpp::LambdaCallback<LambdaT, FuncT>>(func, typeid(func).hash_code());
 }
 
 /**
@@ -800,10 +784,10 @@ std::unique_ptr<Details::LambdaCallback<LambdaT, FuncT>> make_lambda(LambdaT fun
 * @param func
 * @param args
 */
-template<typename LambdaT, typename FuncT = typename Details::FunctionTraits<LambdaT>::Type, typename ...Args>
-std::unique_ptr<Details::LambdaBindCallback<LambdaT, FuncT>> make_lambda(LambdaT func, Args&&... args) noexcept
+template<typename LambdaT, typename FuncT = typename Eventpp::FunctionTraits<LambdaT>::Type, typename ...Args>
+std::unique_ptr<Eventpp::LambdaBindCallback<LambdaT, FuncT>> make_lambda(LambdaT func, Args&&... args) noexcept
 {
-	return std::make_unique<Details::LambdaBindCallback<LambdaT, FuncT>>(func, typeid(func).hash_code(), std::make_tuple(args...));
+	return std::make_unique<Eventpp::LambdaBindCallback<LambdaT, FuncT>>(func, typeid(func).hash_code(), std::make_tuple(args...));
 }
 
 /**
