@@ -14,7 +14,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Eventpp.hpp">
+    <ClInclude Include="include\Event.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Callback.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Delegate.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

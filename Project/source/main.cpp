@@ -1,4 +1,8 @@
-#include "Eventpp.hpp"
+// Copyright (c) 2020, Nohzmi. All rights reserved.
+
+#include <cstdio>
+#include "Delegate.h"
+#include "Event.h"
 
 void FreeFunction()
 {
