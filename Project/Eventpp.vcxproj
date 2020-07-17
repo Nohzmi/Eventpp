@@ -22,9 +22,9 @@
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Callback.h" />
-    <ClInclude Include="include\Delegate.h" />
-    <ClInclude Include="include\Event.h" />
+    <ClInclude Include="include\delegate.h" />
+    <ClInclude Include="include\details\callback.h" />
+    <ClInclude Include="include\event.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

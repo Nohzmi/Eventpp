@@ -7,7 +7,7 @@ Eventpp implement a simple event/delegate system in C++
 How to Use
 ----------
 ```cpp
-Event<void(*)()> event;
+event<void(*)()> event;
 event += make_callback(&FreeFunction);
 event += make_callback(&FreeFunctionWithParams, 0);
 event += make_callback(&SomeClass::MemberFunction, &obj);
@@ -16,9 +16,9 @@ event += make_lambda(Functor());
 event += make_lambda(FunctorWithParams(), 2);
 event += make_lambda([] { printf("Lambda\n"); });
 event += make_lambda([](int param) { printf("LambdaWithParams %d\n", param); }, 3);
-event.Invoke();
+event.invoke();
 
-Delegate<void(*)()> delegate;
+delegate<void(*)()> delegate;
 delegate = make_callback(&FreeFunction);
 delegate();
 ```

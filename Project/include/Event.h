@@ -1,139 +1,121 @@
 // Copyright (c) 2020, Nohzmi. All rights reserved.
 
 /**
-* @file Event.h
+* @file event.h
 * @author Nohzmi
 * @version 1.0
 */
 
 #pragma once
 #include <vector>
-#include "Callback.h"
+#include "details/callback.h"
 
 /**
 * @addtogroup Eventpp
 * @{
 */
 
-template<typename FuncT>
-class Event;
-
-/**
-* Store multiple functions
-*/
-template<typename Return, typename ...Args>
-class Event<Return(*)(Args...)> final
+namespace eventpp
 {
-	using FuncT = Return(*)(Args...);
-	using CallbackT = std::unique_ptr<Eventpp::Callback<FuncT>>;
-
-public:
+	template<typename FuncT>
+	class event;
 
 	/**
-	* Constructor
+	* Store multiple functions
 	*/
-	Event() = default;
-
-	/**
-	* Destructor
-	*/
-	~Event() = default;
-
-	/**
-	* Copy constructor
-	*/
-	Event(const Event& copy)
+	template<typename Return, typename ...Args>
+	class event<Return(*)(Args...)> final
 	{
-		m_Callbacks.clear();
+		using FuncT = Return(*)(Args...);
+		using CallbackT = std::unique_ptr<details::callback<FuncT>>;
 
-		for (const CallbackT& callback : copy.m_Callbacks)
-			m_Callbacks.emplace_back(callback->Clone());
-	}
+	public:
 
-	/**
-	* Move constructor
-	*/
-	Event(Event&&) noexcept = default;
+		event() = default;
+		~event() = default;
+		event(event&&) noexcept = default;
+		event& operator=(event&&) noexcept = default;
 
-	/**
-	* Copy assignement operator
-	*/
-	Event& operator=(const Event& copy)
-	{
-		m_Callbacks.clear();
-
-		for (const CallbackT& callback : copy.m_Callbacks)
-			m_Callbacks.emplace_back(callback->Clone());
-
-		return this;
-	}
-
-	/**
-	* Move assignement operator
-	*/
-	Event& operator=(Event&&) noexcept = default;
-
-	/**
-	* Subscribe a function \n
-	* See make_callback() and make_lambda()
-	* @param callback
-	*/
-	void operator+=(CallbackT callback) noexcept
-	{
-		for (auto i{ 0u }; i < m_Callbacks.size(); ++i)
-			if (*callback == *m_Callbacks[i])
-				return;
-
-		m_Callbacks.emplace_back(std::forward<CallbackT>(callback));
-	}
-
-	/**
-	* Unsubscribe a function \n
-	* See make_callback() and make_lambda()
-	* @param callback
-	*/
-	void operator-=(CallbackT callback) noexcept
-	{
-		for (auto i{ 0u }; i < m_Callbacks.size(); ++i)
+		event(const event& copy)
 		{
-			if (*callback == *m_Callbacks[i])
+			m_callbacks.clear();
+
+			for (const CallbackT& callback : copy.m_callbacks)
+				m_callbacks.emplace_back(callback->clone());
+		}
+
+		event& operator=(const event& copy)
+		{
+			m_callbacks.clear();
+
+			for (const CallbackT& callback : copy.m_callbacks)
+				m_callbacks.emplace_back(callback->clone());
+
+			return this;
+		}
+
+		/**
+		* Subscribe a function \n
+		* See make_callback() and make_lambda()
+		* @param callback
+		*/
+		void operator+=(CallbackT callback) noexcept
+		{
+			for (auto i{ 0u }; i < m_callbacks.size(); ++i)
+				if (*callback == *m_callbacks[i])
+					return;
+
+			m_callbacks.emplace_back(std::forward<CallbackT>(callback));
+		}
+
+		/**
+		* Unsubscribe a function \n
+		* See make_callback() and make_lambda()
+		* @param callback
+		*/
+		void operator-=(CallbackT callback) noexcept
+		{
+			for (auto i{ 0u }; i < m_callbacks.size(); ++i)
 			{
-				m_Callbacks.erase(m_Callbacks.begin() + i);
-				return;
+				if (*callback == *m_callbacks[i])
+				{
+					m_callbacks.erase(m_callbacks.begin() + i);
+					return;
+				}
 			}
 		}
-	}
 
-	/**
-	* Clear all subscribed functions
-	*/
-	void Clear()
-	{
-		m_Callbacks.clear();
-	}
+		/**
+		* Clear all subscribed functions
+		*/
+		void clear()
+		{
+			m_callbacks.clear();
+		}
 
-	/**
-	* Call all subscribed functions
-	* @param args
-	*/
-	void Invoke(Args... args) const noexcept
-	{
-		for (unsigned int i{ 0 }; i < m_Callbacks.size(); ++i)
-			(*m_Callbacks[i])(std::forward<Args>(args)...);
-	}
+		/**
+		* Call all subscribed functions
+		* @param args
+		*/
+		void invoke(Args... args) const noexcept
+		{
+			for (auto i{ 0u }; i < m_callbacks.size(); ++i)
+				(*m_callbacks[i])(std::forward<Args>(args)...);
+		}
 
-	/**
-	* Returns whether or not the event stores functions
-	*/
-	bool IsEmpty() noexcept
-	{
-		return m_Callbacks.size() == 0;
-	}
+		/**
+		* Returns whether or not the event stores functions
+		*/
+		bool empty() noexcept
+		{
+			return m_callbacks.size() == 0;
+		}
 
-private:
+	private:
 
-	std::vector<CallbackT> m_Callbacks;
-};
+		std::vector<CallbackT> m_callbacks;
+	};
+}
 
 /**
 * @}

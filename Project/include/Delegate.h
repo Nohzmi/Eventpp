@@ -1,113 +1,95 @@
 // Copyright (c) 2020, Nohzmi. All rights reserved.
 
 /**
-* @file Delegate.h
+* @file delegate.h
 * @author Nohzmi
 * @version 1.0
 */
 
 #pragma once
-#include "Callback.h"
+#include "details/callback.h"
 
 /**
 * @addtogroup Eventpp
 * @{
 */
 
-template<typename FuncT>
-class Delegate;
-
-/**
-* Store a function
-*/
-template<typename Return, typename ...Args>
-class Delegate<Return(*)(Args...)> final
+namespace eventpp
 {
-	using FuncT = Return(*)(Args...);
-	using CallbackT = std::unique_ptr<Eventpp::Callback<FuncT>>;
-
-public:
+	template<typename FuncT>
+	class delegate;
 
 	/**
-	* Constructor
+	* Store a function
 	*/
-	Delegate() = default;
-
-	/**
-	* Destructor
-	*/
-	~Delegate() = default;
-
-	/**
-	* Copy constructor
-	*/
-	Delegate(const Delegate& copy)
+	template<typename Return, typename ...Args>
+	class delegate<Return(*)(Args...)> final
 	{
-		if (copy.m_Callback)
-			m_Callback = copy.m_Callback->Clone();
-	}
+		using FuncT = Return(*)(Args...);
+		using CallbackT = std::unique_ptr<details::callback<FuncT>>;
 
-	/**
-	* Move constructor
-	*/
-	Delegate(Delegate&&) noexcept = default;
+	public:
 
-	/**
-	* Copy assignement operator
-	*/
-	Delegate& operator=(const Delegate& copy)
-	{
-		if (copy.m_Callback)
-			m_Callback = copy.m_Callback->copy();
+		delegate() = default;
+		~delegate() = default;
+		delegate(delegate&&) noexcept = default;
+		delegate& operator=(delegate&&) noexcept = default;
 
-		return this;
-	}
+		delegate(const delegate& copy)
+		{
+			if (copy.m_callback)
+				m_callback = copy.m_callback->clone();
+		}
 
-	/**
-	* Move assignement operator
-	*/
-	Delegate& operator=(Delegate&&) noexcept = default;
+		delegate& operator=(const delegate& copy)
+		{
+			if (copy.m_callback)
+				m_callback = copy.m_callback->copy();
 
-	/**
-	* Replace stored function \n
-	* See make_callback() and make_lambda()
-	* @param callback
-	*/
-	Delegate& operator=(CallbackT callback) noexcept
-	{
-		m_Callback = std::forward<CallbackT>(callback);
-		return *this;
-	}
+			return this;
+		}
 
-	/**
-	* Call stored function
-	* @param args
-	*/
-	Return operator()(Args... args) const noexcept
-	{
-		return m_Callback ? (*m_Callback)(args...) : Return();
-	}
+		/**
+		* Replace stored function \n
+		* See make_callback() and make_lambda()
+		* @param callback
+		*/
+		delegate& operator=(CallbackT callback) noexcept
+		{
+			m_callback = std::forward<CallbackT>(callback);
+			return *this;
+		}
 
-	/**
-	* Returns whether or not it store a function
-	*/
-	operator bool() const noexcept
-	{
-		return static_cast<bool>(m_Callback);
-	}
+		/**
+		* Call stored function
+		* @param args
+		*/
+		Return operator()(Args... args) const noexcept
+		{
+			return m_callback ? (*m_callback)(args...) : Return();
+		}
 
-	/**
-	* Clear stored functions
-	*/
-	void Clear() noexcept
-	{
-		m_Callback.reset(nullptr);
-	}
+		/**
+		* Returns whether or not it store a function
+		*/
+		operator bool() const noexcept
+		{
+			return static_cast<bool>(m_callback);
+		}
 
-private:
+		/**
+		* Clear stored functions
+		*/
+		void clear() noexcept
+		{
+			m_callback.reset(nullptr);
+		}
 
-	CallbackT m_Callback;
-};
+	private:
+
+		CallbackT m_callback;
+	};
+}
 
 /**
 * @}

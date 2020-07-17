@@ -7,6 +7,9 @@
     <Filter Include="source">
       <UniqueIdentifier>{da16ab5a-f911-4388-bea6-5f5709be393a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\details">
+      <UniqueIdentifier>{a5061e0c-4a10-4d5f-bb63-b2b07f402e8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
@@ -14,14 +17,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Event.h">
+    <ClInclude Include="include\delegate.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Callback.h">
+    <ClInclude Include="include\event.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Delegate.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\details\callback.h">
+      <Filter>include\details</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
