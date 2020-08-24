@@ -17,14 +17,23 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\delegate.h">
-      <Filter>include</Filter>
+    <ClInclude Include="include\details\callback.h">
+      <Filter>include\details</Filter>
     </ClInclude>
     <ClInclude Include="include\event.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\details\callback.h">
+    <ClInclude Include="include\factory.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\delegate.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\details\function_traits.h">
       <Filter>include\details</Filter>
+    </ClInclude>
+    <ClInclude Include="include\eventpp.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

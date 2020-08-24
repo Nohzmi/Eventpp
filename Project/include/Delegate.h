@@ -7,7 +7,7 @@
 */
 
 #pragma once
-#include "details/callback.h"
+#include "factory.h"
 
 /**
 * @addtogroup Eventpp

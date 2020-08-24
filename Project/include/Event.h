@@ -8,7 +8,7 @@
 
 #pragma once
 #include <vector>
-#include "details/callback.h"
+#include "factory.h"
 
 /**
 * @addtogroup Eventpp

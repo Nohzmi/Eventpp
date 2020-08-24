@@ -1,7 +1,7 @@
 // Copyright (c) 2020, Nohzmi. All rights reserved.
 
 /**
-* @file callback.h
+* @file eventpp.h
 * @author Nohzmi
 * @version 1.0
 */
@@ -9,11 +9,35 @@
 #pragma once
 #include <memory>
 #include <tuple>
+#include <vector>
+
+/**
+* @addtogroup Eventpp
+* @{
+*/
 
 namespace eventpp
 {
 	namespace details
 	{
+		template<typename FuncT>
+		struct function_traits
+		{
+			using type = typename function_traits<decltype(&FuncT::operator())>::type;
+		};
+
+		template<typename Return, typename ...Args>
+		struct function_traits<Return(Args...)>
+		{
+			using type = Return(*)(Args...);
+		};
+
+		template<typename ClassT, typename Return, typename ...Args>
+		struct function_traits<Return(ClassT::*)(Args...)> final : public function_traits<Return(Args...)> {};
+
+		template<typename ClassT, typename Return, typename ...Args>
+		struct function_traits<Return(ClassT::*)(Args...) const> final : public function_traits<Return(Args...)> {};
+
 		template<typename FuncT>
 		class callback;
 
@@ -376,4 +400,249 @@ namespace eventpp
 			ArgsT m_args;
 		};
 	}
+
+	template<typename FuncT>
+	class delegate;
+
+	/**
+	* Store a function
+	*/
+	template<typename Return, typename ...Args>
+	class delegate<Return(*)(Args...)> final
+	{
+		using FuncT = Return(*)(Args...);
+		using CallbackT = std::unique_ptr<details::callback<FuncT>>;
+
+	public:
+
+		delegate() = default;
+		~delegate() = default;
+		delegate(delegate&&) noexcept = default;
+		delegate& operator=(delegate&&) noexcept = default;
+
+		delegate(const delegate& copy)
+		{
+			if (copy.m_callback)
+				m_callback = copy.m_callback->clone();
+		}
+
+		delegate& operator=(const delegate& copy)
+		{
+			if (copy.m_callback)
+				m_callback = copy.m_callback->copy();
+
+			return this;
+		}
+
+		/**
+		* Replace stored function \n
+		* See make_callback() and make_lambda()
+		* @param callback
+		*/
+		delegate& operator=(CallbackT callback) noexcept
+		{
+			m_callback = std::forward<CallbackT>(callback);
+			return *this;
+		}
+
+		/**
+		* Call stored function
+		* @param args
+		*/
+		Return operator()(Args... args) const noexcept
+		{
+			return m_callback ? (*m_callback)(args...) : Return();
+		}
+
+		/**
+		* Returns whether or not it store a function
+		*/
+		operator bool() const noexcept
+		{
+			return static_cast<bool>(m_callback);
+		}
+
+		/**
+		* Clear stored functions
+		*/
+		void clear() noexcept
+		{
+			m_callback.reset(nullptr);
+		}
+
+	private:
+
+		CallbackT m_callback;
+	};
+
+	template<typename FuncT>
+	class event;
+
+	/**
+	* Store multiple functions
+	*/
+	template<typename Return, typename ...Args>
+	class event<Return(*)(Args...)> final
+	{
+		using FuncT = Return(*)(Args...);
+		using CallbackT = std::unique_ptr<details::callback<FuncT>>;
+
+	public:
+
+		event() = default;
+		~event() = default;
+		event(event&&) noexcept = default;
+		event& operator=(event&&) noexcept = default;
+
+		event(const event& copy)
+		{
+			m_callbacks.clear();
+
+			for (const CallbackT& callback : copy.m_callbacks)
+				m_callbacks.emplace_back(callback->clone());
+		}
+
+		event& operator=(const event& copy)
+		{
+			m_callbacks.clear();
+
+			for (const CallbackT& callback : copy.m_callbacks)
+				m_callbacks.emplace_back(callback->clone());
+
+			return this;
+		}
+
+		/**
+		* Subscribe a function \n
+		* See make_callback() and make_lambda()
+		* @param callback
+		*/
+		void operator+=(CallbackT callback) noexcept
+		{
+			for (auto i{ 0u }; i < m_callbacks.size(); ++i)
+				if (*callback == *m_callbacks[i])
+					return;
+
+			m_callbacks.emplace_back(std::forward<CallbackT>(callback));
+		}
+
+		/**
+		* Unsubscribe a function \n
+		* See make_callback() and make_lambda()
+		* @param callback
+		*/
+		void operator-=(CallbackT callback) noexcept
+		{
+			for (auto i{ 0u }; i < m_callbacks.size(); ++i)
+			{
+				if (*callback == *m_callbacks[i])
+				{
+					m_callbacks.erase(m_callbacks.begin() + i);
+					return;
+				}
+			}
+		}
+
+		/**
+		* Clear all subscribed functions
+		*/
+		void clear()
+		{
+			m_callbacks.clear();
+		}
+
+		/**
+		* Call all subscribed functions
+		* @param args
+		*/
+		void invoke(Args... args) const noexcept
+		{
+			for (auto i{ 0u }; i < m_callbacks.size(); ++i)
+				(*m_callbacks[i])(std::forward<Args>(args)...);
+		}
+
+		/**
+		* Returns whether or not the event stores functions
+		*/
+		bool empty() noexcept
+		{
+			return m_callbacks.size() == 0;
+		}
+
+	private:
+
+		std::vector<CallbackT> m_callbacks;
+	};
+
+	/**
+	* Returns a callback on a free function
+	* @param func
+	*/
+	template<typename FuncT>
+	std::unique_ptr<details::free_callback<FuncT>> make_callback(FuncT&& func) noexcept
+	{
+		return std::make_unique<details::free_callback<FuncT>>(func);
+	}
+
+	/**
+	* Returns a callback on a free function \n
+	* Allow to bind arguments with the function
+	* @param func
+	* @param args
+	*/
+	template<typename FuncT, typename ...Args>
+	std::unique_ptr<details::free_bind_callback<FuncT>> make_callback(FuncT&& func, Args&&... args) noexcept
+	{
+		return std::make_unique<details::free_bind_callback<FuncT>>(func, std::make_tuple(args...));
+	}
+
+	/**
+	* Returns a callback on a member function
+	* @param func
+	* @param obj
+	*/
+	template<typename ClassT, typename FuncT>
+	std::unique_ptr<details::member_callback<ClassT, FuncT>> make_callback(FuncT&& func, ClassT*&& obj) noexcept
+	{
+		return std::make_unique<details::member_callback<ClassT, FuncT>>(func, obj);
+	}
+
+	/**
+	* Returns a callback on a member function \n
+	* Allow to bind arguments with the function
+	* @param func
+	* @param obj
+	* @param args
+	*/
+	template<typename ClassT, typename FuncT, typename ...Args>
+	std::unique_ptr<details::member_bind_callback<ClassT, FuncT>> make_callback(FuncT&& func, ClassT*&& obj, Args&&... args) noexcept
+	{
+		return std::make_unique<details::member_bind_callback<ClassT, FuncT>>(func, obj, std::make_tuple(args...));
+	}
+
+	/**
+	* Returns a callback on a lambda function
+	* @param func
+	*/
+	template<typename LambdaT, typename FuncT = typename details::function_traits<LambdaT>::type>
+	std::unique_ptr<details::lambda_callback<LambdaT, FuncT>> make_lambda(LambdaT func) noexcept
+	{
+		return std::make_unique<details::lambda_callback<LambdaT, FuncT>>(func, typeid(func).hash_code());
+	}
+
+	/**
+	* Returns a callback on a lambda function \n
+	* Allow to bind arguments with the function
+	* @param func
+	* @param args
+	*/
+	template<typename LambdaT, typename FuncT = typename details::function_traits<LambdaT>::type, typename ...Args>
+	std::unique_ptr<details::lambda_bind_callback<LambdaT, FuncT>> make_lambda(LambdaT func, Args&&... args) noexcept
+	{
+		return std::make_unique<details::lambda_bind_callback<LambdaT, FuncT>>(func, typeid(func).hash_code(), std::make_tuple(args...));
+	}
 }
+
+/**
+* @}
+*/
