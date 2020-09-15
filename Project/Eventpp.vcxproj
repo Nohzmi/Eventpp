@@ -22,12 +22,7 @@
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\delegate.h" />
-    <ClInclude Include="include\details\callback.h" />
-    <ClInclude Include="include\details\function_traits.h" />
-    <ClInclude Include="include\event.h" />
-    <ClInclude Include="include\eventpp.h" />
-    <ClInclude Include="include\factory.h" />
+    <ClInclude Include="include\eventpp.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

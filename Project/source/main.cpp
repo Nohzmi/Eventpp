@@ -1,8 +1,7 @@
 // Copyright (c) 2020, Nohzmi. All rights reserved.
 
 #include <cstdio>
-#include "delegate.h"
-#include "event.h"
+#include "eventpp.hpp"
 
 void FreeFunction()
 {
